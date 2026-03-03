@@ -1,0 +1,6 @@
+v1.0.0
+Esta es la primera versión del programa, espero ampliarlo con el tiempo. En particular, las secciones de teoría están bastante escasas de contenido.
+Si ves erratas o se te ocurre alguna cosa que le falta al programa y sería útil incluirlo, cuéntamelo en misvidriados@gmail.com
+
+v1.1.0
+Se añade un nuevo módulo para el diagrama de Stull, es decir, el diagrama que representa la sílice frente a la alúmina para diferentes fórmulas de vidriado
