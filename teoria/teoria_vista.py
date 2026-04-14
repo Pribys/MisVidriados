@@ -3,6 +3,7 @@
 # Modificación: Añadido botón "Margen" que inserta un bloque <div class="margen">
 # con margen únicamente izquierdo mediante CSS.
 # Cambio encapsulado sin alterar comportamiento previo.
+import sys
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
@@ -108,9 +109,20 @@ class TeoriaVista(QWidget):
 
         layout_principal.addLayout(barra)
 
+#    def _archivo_actual(self) -> Path:
+#        index = self.tabbar.currentIndex()
+#        return self.archivos[index][1]
+    
     def _archivo_actual(self) -> Path:
         index = self.tabbar.currentIndex()
-        return self.archivos[index][1]
+        relativa = self.archivos[index][1]
+
+        if getattr(sys, "frozen", False):
+            base = Path(sys._MEIPASS)
+        else:
+            base = Path(".")
+
+        return base / relativa
 
     def _cargar_archivo_actual(self):
         ruta = self._archivo_actual()

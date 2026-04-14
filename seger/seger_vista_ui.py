@@ -2,10 +2,10 @@
 """
 Construcción de la interfaz gráfica del módulo Seger.
 
-Versión 06:
-- Receta con QTableWidget.
-- Ajuste fino de anchos de columnas.
-- Alineación correcta del bloque Total bajo la columna Peso (g).
+Versión 07:
+- Añade campo de incremento '+-:' para modificar pesos
+  en modo receta → fórmula.
+- El campo se sitúa a la izquierda del campo Total.
 - No contiene lógica de negocio.
 """
 
@@ -21,7 +21,6 @@ from PySide6.QtWidgets import QHeaderView
 def construir_ui(vista):
     layout_principal = QHBoxLayout(vista)
 
-    # --- Columna izquierda ---
     col_izq = QVBoxLayout()
     col_izq.addWidget(QLabel("Materias primas"))
     vista.lista_materias = QListWidget()
@@ -29,10 +28,8 @@ def construir_ui(vista):
     cont_izq = QWidget()
     cont_izq.setLayout(col_izq)
 
-    # --- Columna derecha ---
     col_der = QVBoxLayout()
 
-    # ===== Receta =====
     receta_box = QGroupBox("Receta")
     receta_layout = QVBoxLayout(receta_box)
 
@@ -44,36 +41,40 @@ def construir_ui(vista):
     vista.tabla_receta.verticalHeader().setVisible(False)
     vista.tabla_receta.setEditTriggers(QTableWidget.NoEditTriggers)
 
-    # Ajuste fino de anchos
     header = vista.tabla_receta.horizontalHeader()
-    header.setSectionResizeMode(0, QHeaderView.Stretch)  # MP expansible
-    vista.tabla_receta.setColumnWidth(1, 80)   # Peso
-    vista.tabla_receta.setColumnWidth(2, 32)   # +
-    vista.tabla_receta.setColumnWidth(3, 32)   # -
-    vista.tabla_receta.setColumnWidth(4, 60)   # %
-    vista.tabla_receta.setColumnWidth(5, 80)   # Cantidad
+    header.setSectionResizeMode(0, QHeaderView.Stretch)
+    vista.tabla_receta.setColumnWidth(1, 80)
+    vista.tabla_receta.setColumnWidth(2, 32)
+    vista.tabla_receta.setColumnWidth(3, 32)
+    vista.tabla_receta.setColumnWidth(4, 60)
+    vista.tabla_receta.setColumnWidth(5, 80)
 
     receta_layout.addWidget(vista.tabla_receta)
 
-    # ----- Total alineado bajo columna Peso -----
     total_grid = QGridLayout()
-    total_grid.setColumnStretch(0, 3)  # MP (simula stretch)
-    total_grid.setColumnStretch(1, 1)  # Peso
-    total_grid.setColumnStretch(2, 0)  # +
-    total_grid.setColumnStretch(3, 0)  # -
-    total_grid.setColumnStretch(4, 0)  # %
-    total_grid.setColumnStretch(5, 0)  # Cantidad
+
+    total_grid.setColumnStretch(0, 0)
+    total_grid.setColumnStretch(1, 0)
+    total_grid.setColumnStretch(2, 0)
+    total_grid.setColumnStretch(3, 0)
+    total_grid.setColumnStretch(4, 1)
+
+    inc_label = QLabel("+-:")
+    vista.input_incremento = QLineEdit()
+    vista.input_incremento.setText("1")
+    vista.input_incremento.setMaximumWidth(60)
 
     total_label = QLabel("Total:")
     vista.input_cantidad_total = QLineEdit()
     vista.input_cantidad_total.setMaximumWidth(80)
 
-    total_grid.addWidget(total_label, 0, 0, alignment=Qt.AlignRight)
-    total_grid.addWidget(vista.input_cantidad_total, 0, 1, alignment=Qt.AlignLeft)
+    total_grid.addWidget(inc_label, 0, 0, alignment=Qt.AlignRight)
+    total_grid.addWidget(vista.input_incremento, 0, 1, alignment=Qt.AlignLeft)
+    total_grid.addWidget(total_label, 0, 2, alignment=Qt.AlignRight)
+    total_grid.addWidget(vista.input_cantidad_total, 0, 3, alignment=Qt.AlignLeft)
 
     receta_layout.addLayout(total_grid)
 
-    # ===== Pesos de óxidos =====
     pesos_box = QGroupBox("Pesos de óxidos")
     pesos_layout = QHBoxLayout(pesos_box)
 
@@ -86,18 +87,16 @@ def construir_ui(vista):
     pesos_layout.addWidget(vista.pesos_texto)
     pesos_layout.addWidget(vista.pesos_pendientes_texto)
 
-    # Fila superior
     fila_sup = QHBoxLayout()
     fila_sup.addWidget(receta_box, 2)
     fila_sup.addWidget(pesos_box, 1)
 
-    # ===== Botones centrales =====
     botones_layout = QHBoxLayout()
 
     vista.btn_limpiar = QPushButton("Limpiar")
     vista.btn_guardar = QPushButton("Guardar")
     vista.btn_a_receta = QPushButton("A receta")
-    vista.btn_a_formula = QPushButton("A fórmula")
+    vista.btn_sustituir = QPushButton("Sustituir")
     vista.btn_ajustar = QPushButton("Ajustar")
     vista.btn_deshacer = QPushButton("Deshacer")
 
@@ -105,7 +104,7 @@ def construir_ui(vista):
         vista.btn_limpiar,
         vista.btn_guardar,
         vista.btn_a_receta,
-        vista.btn_a_formula,
+        vista.btn_sustituir,
         vista.btn_ajustar,
         vista.btn_deshacer,
     ):
@@ -113,7 +112,6 @@ def construir_ui(vista):
 
     botones_layout.addStretch()
 
-    # ===== Fórmula Seger =====
     formula_box = QGroupBox("Fórmula Seger")
     formula_layout = QVBoxLayout(formula_box)
     formula_layout.addLayout(_crear_grid_oxidos(vista))
